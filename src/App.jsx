@@ -1017,7 +1017,7 @@ function SkillDetail({ skill, profile, onBack, onUpdate, onDelete }) {
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setAiText(data.text || "No response. Please try again.");
+      setAiText(data.text || data.error || "No response. Please try again.");
     } catch {
       setAiText("Could not reach AI. Check your connection and try again.");
     }
