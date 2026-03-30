@@ -1,16 +1,22 @@
 import { useState } from "react";
 
 const C = {
-  accent: "#B8860B",
-  accentL: "#FBF3DC",
-  accentD: "#8B6408",
-  bg: "#F9F8F5",
+  accent: "#C9920A",
+  accentL: "#FEF6E4",
+  accentD: "#7C5104",
+  grad: "linear-gradient(135deg, #7C5104 0%, #B8760B 45%, #E6A817 100%)",
+  gradDeep: "linear-gradient(135deg, #2E1800 0%, #7C5104 45%, #C9920A 100%)",
+  gradCard: "linear-gradient(135deg, #FEF6E4 0%, #FDE9B0 100%)",
+  gradText: "linear-gradient(135deg, #7C5104 0%, #C9920A 60%, #F5C842 100%)",
+  gradBar: "linear-gradient(90deg, #7C5104, #C9920A, #F5C842)",
+  bg: "#FDFAF4",
   card: "#FFFFFF",
-  border: "#E8E4DC",
-  text: "#1C1917",
-  muted: "#78716C",
+  border: "#EDE5CC",
+  text: "#1C1510",
+  muted: "#7A6A52",
   success: "#16A34A",
 };
+
 const uid = () => Math.random().toString(36).slice(2, 9);
 const pct = (sk) =>
   sk.milestones.length
@@ -35,6 +41,22 @@ function Spinner({ s = 20 }) {
         flexShrink: 0,
       }}
     />
+  );
+}
+
+function GradText({ children, style = {} }) {
+  return (
+    <span
+      style={{
+        background: C.gradText,
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+        ...style,
+      }}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -70,31 +92,30 @@ function ProfileSetup({ onSave, existing }) {
           width: "100%",
           maxWidth: 480,
           background: C.card,
-          borderRadius: 18,
+          borderRadius: 20,
           padding: 36,
-          boxShadow: "0 4px 32px rgba(0,0,0,0.08)",
+          boxShadow: "0 8px 40px rgba(124,81,4,0.15)",
         }}
       >
         <div style={{ marginBottom: 28 }}>
           <div
             style={{
-              width: 46,
-              height: 46,
-              background: C.accent,
-              borderRadius: 12,
+              width: 52,
+              height: 52,
+              background: C.grad,
+              borderRadius: 14,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               marginBottom: 14,
-              fontSize: 22,
+              fontSize: 24,
+              boxShadow: "0 4px 20px rgba(184,118,11,0.4)",
             }}
           >
             🗺️
           </div>
-          <h1
-            style={{ margin: 0, fontSize: 21, fontWeight: 800, color: C.text }}
-          >
-            Skill Roadmap Tracker
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
+            <GradText>Skill Roadmap Tracker</GradText>
           </h1>
           <p
             style={{
@@ -132,7 +153,7 @@ function ProfileSetup({ onSave, existing }) {
                 display: "block",
                 fontSize: 12,
                 fontWeight: 700,
-                color: C.text,
+                color: C.accentD,
                 marginBottom: 5,
                 textTransform: "uppercase",
                 letterSpacing: 0.5,
@@ -148,7 +169,7 @@ function ProfileSetup({ onSave, existing }) {
               style={{
                 width: "100%",
                 padding: "10px 13px",
-                borderRadius: 9,
+                borderRadius: 10,
                 border: `1.5px solid ${C.border}`,
                 fontSize: 14,
                 color: C.text,
@@ -165,7 +186,7 @@ function ProfileSetup({ onSave, existing }) {
               display: "block",
               fontSize: 12,
               fontWeight: 700,
-              color: C.text,
+              color: C.accentD,
               marginBottom: 5,
               textTransform: "uppercase",
               letterSpacing: 0.5,
@@ -181,9 +202,9 @@ function ProfileSetup({ onSave, existing }) {
                 style={{
                   flex: 1,
                   padding: "9px 0",
-                  borderRadius: 9,
+                  borderRadius: 10,
                   border: `1.5px solid ${f.experience === lv ? C.accent : C.border}`,
-                  background: f.experience === lv ? C.accentL : C.card,
+                  background: f.experience === lv ? C.gradCard : C.card,
                   color: f.experience === lv ? C.accentD : C.muted,
                   fontWeight: 700,
                   fontSize: 13,
@@ -201,7 +222,7 @@ function ProfileSetup({ onSave, existing }) {
               display: "block",
               fontSize: 12,
               fontWeight: 700,
-              color: C.text,
+              color: C.accentD,
               marginBottom: 5,
               textTransform: "uppercase",
               letterSpacing: 0.5,
@@ -220,7 +241,7 @@ function ProfileSetup({ onSave, existing }) {
             style={{
               width: "100%",
               padding: "10px 13px",
-              borderRadius: 9,
+              borderRadius: 10,
               border: `1.5px solid ${C.border}`,
               fontSize: 14,
               color: C.text,
@@ -237,13 +258,15 @@ function ProfileSetup({ onSave, existing }) {
           style={{
             width: "100%",
             padding: "13px 0",
-            background: valid ? C.accent : C.border,
+            background: valid ? C.grad : C.border,
             color: "#fff",
-            borderRadius: 11,
+            borderRadius: 12,
             fontWeight: 800,
             fontSize: 15,
             border: "none",
             cursor: valid ? "pointer" : "default",
+            boxShadow: valid ? "0 4px 18px rgba(184,118,11,0.4)" : "none",
+            transition: "all 0.2s",
           }}
         >
           {isEdit ? "Update Profile ✓" : "Start My Journey →"}
@@ -262,18 +285,20 @@ function SkillCard({ skill, onClick }) {
       style={{
         background: C.card,
         border: `1.5px solid ${C.border}`,
-        borderRadius: 14,
+        borderRadius: 16,
         padding: 20,
         cursor: "pointer",
-        transition: "box-shadow 0.2s, border-color 0.2s",
+        transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.09)";
-        e.currentTarget.style.borderColor = C.accent + "55";
+        e.currentTarget.style.boxShadow = "0 6px 28px rgba(184,118,11,0.18)";
+        e.currentTarget.style.borderColor = C.accent + "88";
+        e.currentTarget.style.transform = "translateY(-2px)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = "none";
         e.currentTarget.style.borderColor = C.border;
+        e.currentTarget.style.transform = "none";
       }}
     >
       <div
@@ -289,7 +314,9 @@ function SkillCard({ skill, onClick }) {
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: C.accent,
+              background: C.gradText,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
               textTransform: "uppercase",
               letterSpacing: 1.2,
               marginBottom: 4,
@@ -365,14 +392,15 @@ function SkillCard({ skill, onClick }) {
           {p}%
         </span>
       </div>
-      <div style={{ height: 6, background: C.border, borderRadius: 99 }}>
+      <div style={{ height: 7, background: C.border, borderRadius: 99 }}>
         <div
           style={{
             height: "100%",
             width: `${p}%`,
-            background: p === 100 ? C.success : C.accent,
+            background: p === 100 ? C.success : C.gradBar,
             borderRadius: 99,
             transition: "width 0.5s",
+            boxShadow: p > 0 ? "0 1px 6px rgba(184,118,11,0.35)" : "none",
           }}
         />
       </div>
@@ -407,7 +435,7 @@ function AddSkillModal({ onClose, onAdd, profile }) {
     const prompt = `You are an expert learning coach. Create a personalised learning roadmap for: "${form.title}"${form.category ? ` (${form.category})` : ""}.
 Profile: Age ${profile.age}, Location: ${profile.location}, Field: ${profile.field}, Experience: ${profile.experience}, Weekly hours: ${profile.weeklyHours}h/week.
 Goals: ${profile.goals || "General improvement"}.
-Tailor steps to their local context in ${profile.location}. Return ONLY a JSON array with 7-10 milestones: [{"title":"...","description":"..."}]. No markdown, no preamble, just the JSON array.`;
+Tailor steps to their local context in ${profile.location}. Return ONLY a JSON array with 7-10 milestones: [{"title":"...","description":"..."}]. No markdown, no preamble.`;
     try {
       const result = await callAI(prompt);
       const parsed = JSON.parse(result.replace(/```json|```/g, "").trim());
@@ -449,7 +477,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.45)",
+        background: "rgba(0,0,0,0.5)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -462,10 +490,11 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
           width: "100%",
           maxWidth: 520,
           background: C.card,
-          borderRadius: 18,
+          borderRadius: 20,
           padding: 28,
           maxHeight: "88vh",
           overflowY: "auto",
+          boxShadow: "0 12px 50px rgba(0,0,0,0.2)",
         }}
       >
         <div
@@ -476,10 +505,12 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
             marginBottom: 22,
           }}
         >
-          <h2
-            style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text }}
-          >
-            {step === 1 ? "Add New Skill" : `📋 Review Roadmap`}
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+            {step === 1 ? (
+              <GradText>Add New Skill</GradText>
+            ) : (
+              <GradText>📋 Review Roadmap</GradText>
+            )}
           </h2>
           <button
             onClick={onClose}
@@ -512,7 +543,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     display: "block",
                     fontSize: 12,
                     fontWeight: 700,
-                    color: C.text,
+                    color: C.accentD,
                     marginBottom: 5,
                   }}
                 >
@@ -527,7 +558,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      borderRadius: 9,
+                      borderRadius: 10,
                       border: `1.5px solid ${C.border}`,
                       fontSize: 14,
                       resize: "none",
@@ -543,7 +574,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      borderRadius: 9,
+                      borderRadius: 10,
                       border: `1.5px solid ${C.border}`,
                       fontSize: 14,
                       boxSizing: "border-box",
@@ -560,10 +591,10 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                   flex: 1,
                   padding: "12px 0",
                   background:
-                    form.title && form.category ? C.accentL : "#F3F4F6",
+                    form.title && form.category ? C.gradCard : "#F3F4F6",
                   color: C.accentD,
-                  border: `1.5px solid ${form.title && form.category ? C.accent + "55" : C.border}`,
-                  borderRadius: 10,
+                  border: `1.5px solid ${form.title && form.category ? C.accent + "66" : C.border}`,
+                  borderRadius: 11,
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: form.title && form.category ? "pointer" : "default",
@@ -588,13 +619,17 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                 disabled={!form.title || !form.category}
                 style={{
                   padding: "12px 18px",
-                  background: form.title && form.category ? C.accent : C.border,
+                  background: form.title && form.category ? C.grad : C.border,
                   color: "#fff",
-                  borderRadius: 10,
+                  borderRadius: 11,
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: form.title && form.category ? "pointer" : "default",
                   border: "none",
+                  boxShadow:
+                    form.title && form.category
+                      ? "0 3px 12px rgba(184,118,11,0.35)"
+                      : "none",
                 }}
               >
                 Manual →
@@ -615,7 +650,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     marginBottom: 8,
                     padding: "10px 12px",
                     background: C.bg,
-                    borderRadius: 9,
+                    borderRadius: 10,
                     border: `1px solid ${C.border}`,
                   }}
                 >
@@ -624,8 +659,8 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                       width: 22,
                       height: 22,
                       borderRadius: "50%",
-                      background: C.accentL,
-                      color: C.accentD,
+                      background: C.grad,
+                      color: "#fff",
                       fontSize: 11,
                       fontWeight: 800,
                       display: "flex",
@@ -692,7 +727,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                   style={{
                     flex: 1,
                     padding: "9px 12px",
-                    borderRadius: 9,
+                    borderRadius: 10,
                     border: `1.5px dashed ${C.border}`,
                     fontSize: 13,
                     background: C.bg,
@@ -703,10 +738,10 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                   onClick={addM}
                   style={{
                     padding: "9px 14px",
-                    background: C.accentL,
+                    background: C.grad,
                     border: "none",
-                    borderRadius: 9,
-                    color: C.accentD,
+                    borderRadius: 10,
+                    color: "#fff",
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
@@ -722,7 +757,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                   padding: "11px 16px",
                   background: C.bg,
                   border: `1.5px solid ${C.border}`,
-                  borderRadius: 10,
+                  borderRadius: 11,
                   fontWeight: 600,
                   fontSize: 13,
                   cursor: "pointer",
@@ -745,13 +780,14 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                 style={{
                   flex: 1,
                   padding: "11px 0",
-                  background: C.accent,
+                  background: C.grad,
                   color: "#fff",
-                  borderRadius: 10,
+                  borderRadius: 11,
                   fontWeight: 800,
                   fontSize: 14,
                   cursor: "pointer",
                   border: "none",
+                  boxShadow: "0 4px 16px rgba(184,118,11,0.4)",
                 }}
               >
                 Save Skill ✓
@@ -781,10 +817,10 @@ function Dashboard({
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
+      {/* Header */}
       <div
         style={{
-          background: C.card,
-          borderBottom: `1px solid ${C.border}`,
+          background: C.gradDeep,
           padding: "14px 24px",
           display: "flex",
           justifyContent: "space-between",
@@ -792,28 +828,31 @@ function Dashboard({
           position: "sticky",
           top: 0,
           zIndex: 10,
+          boxShadow: "0 2px 20px rgba(0,0,0,0.25)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              background: C.accent,
+              width: 38,
+              height: 38,
+              background: "rgba(255,255,255,0.15)",
               borderRadius: 10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 18,
+              fontSize: 20,
+              backdropFilter: "blur(4px)",
+              border: "1px solid rgba(255,255,255,0.2)",
             }}
           >
             🗺️
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#FFF8E7" }}>
               Skill Roadmap
             </div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#E6C97A", marginTop: 1 }}>
               Hey {profile.name} 👋
             </div>
           </div>
@@ -821,12 +860,12 @@ function Dashboard({
         <button
           onClick={onEditProfile}
           style={{
-            background: "none",
-            border: `1.5px solid ${C.border}`,
+            background: "rgba(255,255,255,0.12)",
+            border: "1.5px solid rgba(255,255,255,0.2)",
             borderRadius: 8,
             padding: "7px 14px",
             fontSize: 12,
-            color: C.muted,
+            color: "#FFF8E7",
             cursor: "pointer",
             fontWeight: 600,
           }}
@@ -834,7 +873,9 @@ function Dashboard({
           ✏️ Edit Profile
         </button>
       </div>
+
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "28px 20px" }}>
+        {/* Stats */}
         <div
           style={{
             display: "grid",
@@ -844,27 +885,39 @@ function Dashboard({
           }}
         >
           {[
-            ["Total Skills", skills.length],
+            ["Total Skills", skills.length, "📚"],
             [
               "In Progress",
               skills.filter((s) => s.status === "In Progress").length,
+              "🔥",
             ],
             [
               "Completed",
               skills.filter((s) => s.status === "Completed").length,
+              "✅",
             ],
-            ["Avg Progress", `${overall}%`],
-          ].map(([label, val]) => (
+            ["Avg Progress", `${overall}%`, "📈"],
+          ].map(([label, val, icon]) => (
             <div
               key={label}
               style={{
                 background: C.card,
                 border: `1.5px solid ${C.border}`,
-                borderRadius: 12,
+                borderRadius: 14,
                 padding: "14px 16px",
+                boxShadow: "0 2px 10px rgba(184,118,11,0.07)",
               }}
             >
-              <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>
+              <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                  background: C.gradText,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
                 {val}
               </div>
               <div
@@ -880,42 +933,58 @@ function Dashboard({
             </div>
           ))}
         </div>
+
+        {/* Overall progress */}
         {skills.length > 0 && (
           <div
             style={{
-              background: C.accentL,
-              borderRadius: 12,
-              padding: "14px 18px",
+              background: C.gradCard,
+              borderRadius: 14,
+              padding: "16px 20px",
               marginBottom: 22,
-              border: `1.5px solid ${C.accent}33`,
+              border: `1.5px solid ${C.accent}44`,
+              boxShadow: "0 3px 16px rgba(184,118,11,0.12)",
             }}
           >
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginBottom: 7,
+                marginBottom: 8,
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 800,
                 color: C.accentD,
               }}
             >
               <span>Overall Progress</span>
-              <span>{overall}%</span>
+              <span
+                style={{
+                  background: C.gradText,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                {overall}%
+              </span>
             </div>
-            <div style={{ height: 8, background: "#E8D9A0", borderRadius: 99 }}>
+            <div
+              style={{ height: 10, background: "#E8D9A0", borderRadius: 99 }}
+            >
               <div
                 style={{
                   height: "100%",
                   width: `${overall}%`,
-                  background: C.accent,
+                  background: C.gradBar,
                   borderRadius: 99,
-                  transition: "width 0.5s",
+                  transition: "width 0.6s",
+                  boxShadow: "0 1px 8px rgba(184,118,11,0.4)",
                 }}
               />
             </div>
           </div>
         )}
+
+        {/* Filter + Add */}
         <div
           style={{
             display: "flex",
@@ -935,11 +1004,13 @@ function Dashboard({
                   padding: "6px 13px",
                   borderRadius: 20,
                   border: `1.5px solid ${filter === s ? C.accent : C.border}`,
-                  background: filter === s ? C.accentL : C.card,
+                  background: filter === s ? C.gradCard : C.card,
                   color: filter === s ? C.accentD : C.muted,
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",
+                  boxShadow:
+                    filter === s ? "0 2px 8px rgba(184,118,11,0.2)" : "none",
                 }}
               >
                 {s}
@@ -949,24 +1020,26 @@ function Dashboard({
           <button
             onClick={() => setShowAdd(true)}
             style={{
-              background: C.accent,
+              background: C.grad,
               color: "#fff",
               border: "none",
-              borderRadius: 10,
-              padding: "9px 18px",
+              borderRadius: 11,
+              padding: "9px 20px",
               fontWeight: 800,
               fontSize: 13,
               cursor: "pointer",
+              boxShadow: "0 4px 16px rgba(184,118,11,0.4)",
             }}
           >
             + Add Skill
           </button>
         </div>
+
         {filtered.length === 0 ? (
           <div
             style={{ textAlign: "center", padding: "70px 0", color: C.muted }}
           >
-            <div style={{ fontSize: 44, marginBottom: 12 }}>🌱</div>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🌱</div>
             <div style={{ fontSize: 15, fontWeight: 700 }}>No skills yet</div>
             <div style={{ fontSize: 13, marginTop: 4 }}>
               Click "+ Add Skill" to begin your roadmap
@@ -984,6 +1057,7 @@ function Dashboard({
           </div>
         )}
       </div>
+
       {showAdd && (
         <AddSkillModal
           onClose={() => setShowAdd(false)}
@@ -1024,13 +1098,13 @@ function SkillDetail({ skill, profile, onBack, onUpdate, onDelete }) {
     setAiLoading(false);
   };
 
-  const ctx = `User: ${profile.name}, Age ${profile.age}, Location: ${profile.location}, Field: ${profile.field}, Experience: ${profile.experience}, ${profile.weeklyHours}h/week available. Goals: ${profile.goals || "general improvement"}.
+  const ctx = `User: ${profile.name}, Age ${profile.age}, Location: ${profile.location}, Field: ${profile.field}, Experience: ${profile.experience}, ${profile.weeklyHours}h/week. Goals: ${profile.goals || "general improvement"}.
 Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skill.milestones.map((m) => `${m.done ? "✓" : "○"} ${m.title}`).join(" | ")}.`;
 
   const prompts = {
     suggestions: `You are an expert learning coach with knowledge of African tech ecosystems. ${ctx}\nAnalyse the roadmap and suggest 4-5 specific improvements or resources. Tailor advice to ${profile.location} — mention locally accessible platforms, free tools, and practical workarounds. Be direct and actionable.`,
-    planner: `You are an expert learning planner. ${ctx}\nCreate a personalised 4-week study plan given ${profile.weeklyHours}h/week. Format clearly as Week 1, Week 2, etc. Be specific about what to do each week. Be realistic for someone in ${profile.location}.`,
-    insight: `You are a career analyst with knowledge of Nigerian, African, and global economies. ${ctx}\nProvide peer benchmarking: Where does a ${profile.age}-year-old in ${profile.location} with ${profile.experience} experience in ${profile.field} stand — locally in Nigeria, across Africa, and globally — if they master "${skill.title}"? Include: percentile context, local salary range, global positioning, and what doors this opens. Be honest and motivating.`,
+    planner: `You are an expert learning planner. ${ctx}\nCreate a personalised 4-week study plan given ${profile.weeklyHours}h/week. Format clearly as Week 1, Week 2, etc. Be specific and realistic for someone in ${profile.location}.`,
+    insight: `You are a career analyst with knowledge of Nigerian, African, and global economies. ${ctx}\nProvide peer benchmarking: Where does a ${profile.age}-year-old in ${profile.location} with ${profile.experience} experience in ${profile.field} stand — locally in Nigeria, across Africa, and globally — if they master "${skill.title}"? Include percentile context, local salary range, global positioning, and what doors this opens. Be honest and motivating.`,
     tips: `You are an elite learning strategist coaching African professionals to global competitiveness. ${ctx}\nGive 3 unconventional high-leverage tips for learning "${skill.title}" that most people in ${profile.location} overlook. Focus on free/affordable resources in Nigeria and what separates the top 10% of learners.`,
   };
 
@@ -1079,10 +1153,10 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
+      {/* Header */}
       <div
         style={{
-          background: C.card,
-          borderBottom: `1px solid ${C.border}`,
+          background: C.gradDeep,
           padding: "14px 20px",
           display: "flex",
           alignItems: "center",
@@ -1090,17 +1164,18 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
           position: "sticky",
           top: 0,
           zIndex: 10,
+          boxShadow: "0 2px 20px rgba(0,0,0,0.25)",
         }}
       >
         <button
           onClick={onBack}
           style={{
-            background: "none",
-            border: `1.5px solid ${C.border}`,
+            background: "rgba(255,255,255,0.12)",
+            border: "1.5px solid rgba(255,255,255,0.2)",
             borderRadius: 8,
             padding: "7px 13px",
             fontSize: 12,
-            color: C.muted,
+            color: "#FFF8E7",
             cursor: "pointer",
             fontWeight: 600,
           }}
@@ -1112,7 +1187,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: C.accent,
+              color: "#E6C97A",
               textTransform: "uppercase",
               letterSpacing: 1.2,
             }}
@@ -1123,7 +1198,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             style={{
               fontSize: 16,
               fontWeight: 800,
-              color: C.text,
+              color: "#FFF8E7",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -1137,12 +1212,12 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             if (window.confirm(`Delete "${skill.title}"?`)) onDelete(skill.id);
           }}
           style={{
-            background: "none",
-            border: `1.5px solid #fecaca`,
+            background: "rgba(255,80,80,0.15)",
+            border: "1.5px solid rgba(255,80,80,0.3)",
             borderRadius: 8,
             padding: "7px 12px",
             fontSize: 12,
-            color: "#DC2626",
+            color: "#ffaaaa",
             cursor: "pointer",
             fontWeight: 600,
           }}
@@ -1150,14 +1225,17 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
           🗑 Delete
         </button>
       </div>
+
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "24px 20px" }}>
+        {/* Progress */}
         <div
           style={{
             background: C.card,
             border: `1.5px solid ${C.border}`,
-            borderRadius: 14,
+            borderRadius: 16,
             padding: 20,
             marginBottom: 16,
+            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
           }}
         >
           <div
@@ -1165,7 +1243,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 10,
+              marginBottom: 12,
             }}
           >
             <div>
@@ -1184,36 +1262,39 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             </div>
             <div
               style={{
-                fontSize: 28,
+                fontSize: 30,
                 fontWeight: 900,
-                color: p === 100 ? C.success : C.accent,
+                background: p === 100 ? "none" : C.gradText,
+                WebkitBackgroundClip: p === 100 ? "none" : "text",
+                WebkitTextFillColor: p === 100 ? C.success : "transparent",
               }}
             >
               {p}%
             </div>
           </div>
-          <div style={{ height: 10, background: C.border, borderRadius: 99 }}>
+          <div style={{ height: 12, background: C.border, borderRadius: 99 }}>
             <div
               style={{
                 height: "100%",
                 width: `${p}%`,
-                background:
-                  p === 100
-                    ? C.success
-                    : `linear-gradient(90deg, ${C.accentD}, ${C.accent})`,
+                background: p === 100 ? C.success : C.gradBar,
                 borderRadius: 99,
                 transition: "width 0.5s",
+                boxShadow: p > 0 ? "0 2px 8px rgba(184,118,11,0.4)" : "none",
               }}
             />
           </div>
         </div>
+
+        {/* Milestones */}
         <div
           style={{
             background: C.card,
             border: `1.5px solid ${C.border}`,
-            borderRadius: 14,
+            borderRadius: 16,
             padding: 20,
             marginBottom: 16,
+            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
           }}
         >
           <div
@@ -1237,8 +1318,8 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             <button
               onClick={() => setShowNewM(!showNewM)}
               style={{
-                background: C.accentL,
-                border: "none",
+                background: C.gradCard,
+                border: `1px solid ${C.accent}55`,
                 borderRadius: 8,
                 padding: "6px 13px",
                 fontSize: 12,
@@ -1261,7 +1342,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 style={{
                   flex: 1,
                   padding: "9px 12px",
-                  borderRadius: 9,
+                  borderRadius: 10,
                   border: `1.5px solid ${C.accent}`,
                   fontSize: 13,
                   boxSizing: "border-box",
@@ -1271,9 +1352,9 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 onClick={addM}
                 style={{
                   padding: "9px 14px",
-                  background: C.accent,
+                  background: C.grad,
                   border: "none",
-                  borderRadius: 9,
+                  borderRadius: 10,
                   color: "#fff",
                   fontWeight: 700,
                   cursor: "pointer",
@@ -1290,7 +1371,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                   padding: "9px 12px",
                   background: C.bg,
                   border: `1px solid ${C.border}`,
-                  borderRadius: 9,
+                  borderRadius: 10,
                   cursor: "pointer",
                   color: C.muted,
                 }}
@@ -1357,6 +1438,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                     fontWeight: 600,
                     color: m.done ? C.muted : C.text,
                     textDecoration: m.done ? "line-through" : "none",
+                    transition: "all 0.2s",
                   }}
                 >
                   {m.title}
@@ -1381,32 +1463,36 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             </div>
           ))}
         </div>
+
+        {/* AI Panel */}
         <div
           style={{
             background: C.card,
             border: `1.5px solid ${C.border}`,
-            borderRadius: 14,
+            borderRadius: 16,
             padding: 20,
+            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
           }}
         >
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 10,
               marginBottom: 14,
             }}
           >
             <div
               style={{
-                width: 30,
-                height: 30,
-                background: C.accentL,
-                borderRadius: 8,
+                width: 34,
+                height: 34,
+                background: C.grad,
+                borderRadius: 10,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 15,
+                fontSize: 16,
+                boxShadow: "0 3px 12px rgba(184,118,11,0.35)",
               }}
             >
               🤖
@@ -1420,6 +1506,9 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                     color: C.success,
                     fontWeight: 700,
                     marginLeft: 4,
+                    background: "#DCFCE7",
+                    padding: "2px 7px",
+                    borderRadius: 99,
                   }}
                 >
                   ✦ Free
@@ -1446,14 +1535,19 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 disabled={aiLoading}
                 style={{
                   padding: "10px 12px",
-                  borderRadius: 9,
+                  borderRadius: 10,
                   border: `1.5px solid ${activeAI === key ? C.accent : C.border}`,
-                  background: activeAI === key ? C.accentL : C.bg,
+                  background: activeAI === key ? C.gradCard : C.bg,
                   color: activeAI === key ? C.accentD : C.muted,
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: aiLoading ? "default" : "pointer",
                   textAlign: "left",
+                  transition: "all 0.15s",
+                  boxShadow:
+                    activeAI === key
+                      ? "0 2px 10px rgba(184,118,11,0.2)"
+                      : "none",
                 }}
               >
                 {label}
@@ -1466,12 +1560,13 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
-                padding: "16px 12px",
-                background: C.accentL,
-                borderRadius: 10,
+                padding: "16px 14px",
+                background: C.gradCard,
+                borderRadius: 12,
                 color: C.accentD,
                 fontSize: 13,
                 fontWeight: 600,
+                border: `1px solid ${C.accent}33`,
               }}
             >
               <Spinner s={18} /> Generating personalised insights...
@@ -1480,17 +1575,20 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
           {!aiLoading && aiText && (
             <div
               style={{
-                background: C.accentL,
-                borderRadius: 10,
+                background: C.gradCard,
+                borderRadius: 12,
                 padding: "16px 18px",
-                border: `1px solid ${C.accent}33`,
+                border: `1px solid ${C.accent}44`,
+                boxShadow: "0 2px 12px rgba(184,118,11,0.1)",
               }}
             >
               <div
                 style={{
                   fontSize: 11,
                   fontWeight: 800,
-                  color: C.accentD,
+                  background: C.gradText,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
                   marginBottom: 10,
                   textTransform: "uppercase",
                   letterSpacing: 1,
@@ -1502,7 +1600,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 style={{
                   fontSize: 13,
                   color: C.text,
-                  lineHeight: 1.75,
+                  lineHeight: 1.8,
                   whiteSpace: "pre-wrap",
                 }}
               >
