@@ -1,20 +1,29 @@
 import { useState } from "react";
 
 const C = {
+  bg: "#0A0805",
+  bg2: "#0F0C07",
+  card: "#141108",
+  cardHover: "#1A1610",
+  glass: "rgba(255,255,255,0.03)",
+  border: "#2A2010",
+  borderGlow: "#C9920A44",
   accent: "#C9920A",
-  accentL: "#FEF6E4",
+  accentL: "#C9920A18",
   accentD: "#7C5104",
-  grad: "linear-gradient(135deg, #7C5104 0%, #B8760B 45%, #E6A817 100%)",
-  gradDeep: "linear-gradient(135deg, #2E1800 0%, #7C5104 45%, #C9920A 100%)",
-  gradCard: "linear-gradient(135deg, #FEF6E4 0%, #FDE9B0 100%)",
-  gradText: "linear-gradient(135deg, #7C5104 0%, #C9920A 60%, #F5C842 100%)",
+  grad: "linear-gradient(135deg, #7C5104 0%, #C9920A 50%, #F5C842 100%)",
+  gradDeep:
+    "linear-gradient(135deg, #1A0E00 0%, #3D2200 40%, #7C5104 80%, #C9920A 100%)",
+  gradText: "linear-gradient(135deg, #E6A817 0%, #F5C842 60%, #FDE68A 100%)",
   gradBar: "linear-gradient(90deg, #7C5104, #C9920A, #F5C842)",
-  bg: "#FDFAF4",
-  card: "#FFFFFF",
-  border: "#EDE5CC",
-  text: "#1C1510",
-  muted: "#7A6A52",
-  success: "#16A34A",
+  gradGlow: "linear-gradient(135deg, #C9920A22 0%, #F5C84211 100%)",
+  text: "#F2EDE4",
+  textDim: "#A89880",
+  muted: "#6B5C48",
+  success: "#22C55E",
+  successBg: "#052010",
+  glow: "0 0 20px rgba(201,146,10,0.3)",
+  glowSm: "0 0 12px rgba(201,146,10,0.2)",
 };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -25,8 +34,13 @@ const pct = (sk) =>
           100,
       )
     : 0;
-const statusCol = (s) =>
-  s === "Completed" ? C.success : s === "In Progress" ? C.accent : C.muted;
+
+const statusStyle = (s) =>
+  s === "Completed"
+    ? { bg: C.successBg, color: C.success, border: "#052010" }
+    : s === "In Progress"
+      ? { bg: C.accentL, color: "#F5C842", border: C.borderGlow }
+      : { bg: "#1A1610", color: C.muted, border: C.border };
 
 function Spinner({ s = 20 }) {
   return (
@@ -34,10 +48,10 @@ function Spinner({ s = 20 }) {
       style={{
         width: s,
         height: s,
-        border: `3px solid ${C.accentL}`,
-        borderTop: `3px solid ${C.accent}`,
+        border: `2px solid ${C.border}`,
+        borderTop: `2px solid ${C.accent}`,
         borderRadius: "50%",
-        animation: "spin 0.8s linear infinite",
+        animation: "spin 0.7s linear infinite",
         flexShrink: 0,
       }}
     />
@@ -60,6 +74,82 @@ function GradText({ children, style = {} }) {
   );
 }
 
+function Card({
+  children,
+  style = {},
+  glow = false,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+}) {
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderRadius: 18,
+        boxShadow: glow
+          ? `0 4px 32px rgba(201,146,10,0.12), inset 0 1px 0 rgba(255,255,255,0.04)`
+          : `inset 0 1px 0 rgba(255,255,255,0.04)`,
+        transition: "all 0.2s",
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function GlowBtn({
+  children,
+  onClick,
+  disabled,
+  style = {},
+  variant = "primary",
+}) {
+  const base =
+    variant === "primary"
+      ? {
+          background: C.grad,
+          color: "#0A0805",
+          boxShadow: disabled ? "none" : C.glow,
+        }
+      : variant === "ghost"
+        ? {
+            background: C.accentL,
+            color: "#F5C842",
+            border: `1px solid ${C.borderGlow}`,
+          }
+        : {
+            background: C.card,
+            color: C.textDim,
+            border: `1px solid ${C.border}`,
+          };
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        border: "none",
+        borderRadius: 12,
+        fontWeight: 800,
+        cursor: disabled ? "default" : "pointer",
+        fontSize: 14,
+        transition: "all 0.2s",
+        opacity: disabled ? 0.4 : 1,
+        ...base,
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ── Profile Setup ─────────────────────────────────────────────────────────────
 function ProfileSetup({ onSave, existing }) {
   const [f, setF] = useState(
     existing || {
@@ -76,6 +166,19 @@ function ProfileSetup({ onSave, existing }) {
   const valid = f.name && f.age && f.field;
   const isEdit = !!existing;
 
+  const inputStyle = {
+    width: "100%",
+    padding: "11px 14px",
+    borderRadius: 11,
+    border: `1px solid ${C.border}`,
+    fontSize: 14,
+    color: C.text,
+    background: C.bg2,
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border 0.2s",
+  };
+
   return (
     <div
       style={{
@@ -87,218 +190,222 @@ function ProfileSetup({ onSave, existing }) {
         padding: 20,
       }}
     >
+      {/* Background glow */}
+      <div
+        style={{
+          position: "fixed",
+          top: "-20%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 600,
+          height: 400,
+          background:
+            "radial-gradient(ellipse, rgba(201,146,10,0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
       <div
         style={{
           width: "100%",
           maxWidth: 480,
-          background: C.card,
-          borderRadius: 20,
-          padding: 36,
-          boxShadow: "0 8px 40px rgba(124,81,4,0.15)",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        <div style={{ marginBottom: 28 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              background: C.grad,
-              borderRadius: 14,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 14,
-              fontSize: 24,
-              boxShadow: "0 4px 20px rgba(184,118,11,0.4)",
-            }}
-          >
-            🗺️
+        <Card
+          glow
+          style={{
+            padding: "40px 36px",
+            boxShadow:
+              "0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(201,146,10,0.08)",
+          }}
+        >
+          {/* Logo */}
+          <div style={{ marginBottom: 32 }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                background: C.grad,
+                borderRadius: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 26,
+                boxShadow: C.glow,
+                marginBottom: 18,
+              }}
+            >
+              🗺️
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 6 }}>
+              <GradText>Skill Roadmap Tracker</GradText>
+            </h1>
+            <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>
+              {isEdit
+                ? "Update your profile to refine AI personalisation."
+                : "Your personal AI-powered journey starts here."}
+            </p>
           </div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
-            <GradText>Skill Roadmap Tracker</GradText>
-          </h1>
-          <p
-            style={{
-              margin: "6px 0 0",
-              color: C.muted,
-              fontSize: 13,
-              lineHeight: 1.5,
-            }}
-          >
-            {isEdit
-              ? "Update your profile to refine AI personalisation."
-              : "Tell us about yourself — the AI uses this to personalise your entire journey."}
-          </p>
-        </div>
-        {[
-          ["Your Name", "name", "text", "e.g. Tunde"],
-          ["Age", "age", "number", "e.g. 22"],
-          ["Location", "location", "text", "City, Country"],
-          [
-            "Field / Industry",
-            "field",
-            "text",
-            "e.g. Software Engineering, Music, Finance",
-          ],
-          [
-            "Weekly Learning Hours",
-            "weeklyHours",
-            "number",
-            "Hours available per week",
-          ],
-        ].map(([label, key, type, ph]) => (
-          <div key={key} style={{ marginBottom: 14 }}>
+
+          {[
+            ["Your Name", "name", "text", "e.g. Tunde"],
+            ["Age", "age", "number", "e.g. 22"],
+            ["Location", "location", "text", "City, Country"],
+            [
+              "Field / Industry",
+              "field",
+              "text",
+              "e.g. Software Engineering, Music, Finance",
+            ],
+            [
+              "Weekly Learning Hours",
+              "weeklyHours",
+              "number",
+              "Hours per week",
+            ],
+          ].map(([label, key, type, ph]) => (
+            <div key={key} style={{ marginBottom: 14 }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: C.textDim,
+                  marginBottom: 6,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.8,
+                }}
+              >
+                {label}
+              </label>
+              <input
+                type={type}
+                value={f[key]}
+                placeholder={ph}
+                onChange={(e) => upd(key, e.target.value)}
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = C.accent)}
+                onBlur={(e) => (e.target.style.borderColor = C.border)}
+              />
+            </div>
+          ))}
+
+          <div style={{ marginBottom: 14 }}>
             <label
               style={{
                 display: "block",
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 700,
-                color: C.accentD,
-                marginBottom: 5,
+                color: C.textDim,
+                marginBottom: 6,
                 textTransform: "uppercase",
-                letterSpacing: 0.5,
+                letterSpacing: 0.8,
               }}
             >
-              {label}
+              Experience Level
             </label>
-            <input
-              type={type}
-              value={f[key]}
-              placeholder={ph}
-              onChange={(e) => upd(key, e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px 13px",
-                borderRadius: 10,
-                border: `1.5px solid ${C.border}`,
-                fontSize: 14,
-                color: C.text,
-                background: C.bg,
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
+            <div style={{ display: "flex", gap: 8 }}>
+              {["Beginner", "Intermediate", "Advanced"].map((lv) => (
+                <button
+                  key={lv}
+                  onClick={() => upd("experience", lv)}
+                  style={{
+                    flex: 1,
+                    padding: "9px 0",
+                    borderRadius: 10,
+                    border: `1px solid ${f.experience === lv ? C.accent : C.border}`,
+                    background: f.experience === lv ? C.accentL : C.bg2,
+                    color: f.experience === lv ? "#F5C842" : C.muted,
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    boxShadow: f.experience === lv ? C.glowSm : "none",
+                  }}
+                >
+                  {lv}
+                </button>
+              ))}
+            </div>
           </div>
-        ))}
-        <div style={{ marginBottom: 14 }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 700,
-              color: C.accentD,
-              marginBottom: 5,
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-            }}
-          >
-            Experience Level
-          </label>
-          <div style={{ display: "flex", gap: 8 }}>
-            {["Beginner", "Intermediate", "Advanced"].map((lv) => (
-              <button
-                key={lv}
-                onClick={() => upd("experience", lv)}
+
+          <div style={{ marginBottom: 28 }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 11,
+                fontWeight: 700,
+                color: C.textDim,
+                marginBottom: 6,
+                textTransform: "uppercase",
+                letterSpacing: 0.8,
+              }}
+            >
+              Goals{" "}
+              <span
                 style={{
-                  flex: 1,
-                  padding: "9px 0",
-                  borderRadius: 10,
-                  border: `1.5px solid ${f.experience === lv ? C.accent : C.border}`,
-                  background: f.experience === lv ? C.gradCard : C.card,
-                  color: f.experience === lv ? C.accentD : C.muted,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
+                  color: C.muted,
+                  textTransform: "none",
+                  letterSpacing: 0,
+                  fontWeight: 500,
                 }}
               >
-                {lv}
-              </button>
-            ))}
+                (optional)
+              </span>
+            </label>
+            <textarea
+              value={f.goals}
+              onChange={(e) => upd("goals", e.target.value)}
+              placeholder="e.g. Get a remote job, build a startup, master a craft..."
+              rows={3}
+              style={{ ...inputStyle, resize: "vertical" }}
+              onFocus={(e) => (e.target.style.borderColor = C.accent)}
+              onBlur={(e) => (e.target.style.borderColor = C.border)}
+            />
           </div>
-        </div>
-        <div style={{ marginBottom: 26 }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 700,
-              color: C.accentD,
-              marginBottom: 5,
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-            }}
-          >
-            Goals & Aspirations{" "}
-            <span style={{ color: C.muted, textTransform: "none" }}>
-              (optional)
-            </span>
-          </label>
-          <textarea
-            value={f.goals}
-            onChange={(e) => upd("goals", e.target.value)}
-            placeholder="e.g. Get a remote job, build a startup, master a craft..."
-            rows={3}
+
+          <GlowBtn
+            onClick={() => valid && onSave(f)}
+            disabled={!valid}
             style={{
               width: "100%",
-              padding: "10px 13px",
-              borderRadius: 10,
-              border: `1.5px solid ${C.border}`,
-              fontSize: 14,
-              color: C.text,
-              background: C.bg,
-              resize: "vertical",
-              boxSizing: "border-box",
-              fontFamily: "inherit",
+              padding: "14px 0",
+              fontSize: 15,
+              borderRadius: 13,
             }}
-          />
-        </div>
-        <button
-          onClick={() => valid && onSave(f)}
-          disabled={!valid}
-          style={{
-            width: "100%",
-            padding: "13px 0",
-            background: valid ? C.grad : C.border,
-            color: "#fff",
-            borderRadius: 12,
-            fontWeight: 800,
-            fontSize: 15,
-            border: "none",
-            cursor: valid ? "pointer" : "default",
-            boxShadow: valid ? "0 4px 18px rgba(184,118,11,0.4)" : "none",
-            transition: "all 0.2s",
-          }}
-        >
-          {isEdit ? "Update Profile ✓" : "Start My Journey →"}
-        </button>
+          >
+            {isEdit ? "Update Profile ✓" : "Start My Journey →"}
+          </GlowBtn>
+        </Card>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; } input:focus, textarea:focus { border-color: ${C.accent} !important; outline: none; }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
+// ── Skill Card ────────────────────────────────────────────────────────────────
 function SkillCard({ skill, onClick }) {
   const p = pct(skill);
+  const ss = statusStyle(skill.status);
+  const [hovered, setHovered] = useState(false);
   return (
     <div
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        background: C.card,
-        border: `1.5px solid ${C.border}`,
-        borderRadius: 16,
-        padding: 20,
+        background: hovered ? C.cardHover : C.card,
+        border: `1px solid ${hovered ? C.borderGlow : C.border}`,
+        borderRadius: 18,
+        padding: "20px 22px",
         cursor: "pointer",
         transition: "all 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 6px 28px rgba(184,118,11,0.18)";
-        e.currentTarget.style.borderColor = C.accent + "88";
-        e.currentTarget.style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "none";
-        e.currentTarget.style.borderColor = C.border;
-        e.currentTarget.style.transform = "none";
+        boxShadow: hovered
+          ? `0 8px 32px rgba(0,0,0,0.4), ${C.glowSm}`
+          : "0 2px 12px rgba(0,0,0,0.3)",
+        transform: hovered ? "translateY(-2px)" : "none",
       }}
     >
       <div
@@ -306,20 +413,20 @@ function SkillCard({ skill, onClick }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: 8,
+          marginBottom: 10,
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontSize: 10,
-              fontWeight: 700,
+              fontWeight: 800,
               background: C.gradText,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               textTransform: "uppercase",
-              letterSpacing: 1.2,
-              marginBottom: 4,
+              letterSpacing: 1.5,
+              marginBottom: 5,
             }}
           >
             {skill.category || "Skill"}
@@ -327,7 +434,7 @@ function SkillCard({ skill, onClick }) {
           <div
             style={{
               fontSize: 16,
-              fontWeight: 700,
+              fontWeight: 800,
               color: C.text,
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -340,18 +447,14 @@ function SkillCard({ skill, onClick }) {
         <span
           style={{
             fontSize: 11,
-            padding: "4px 10px",
-            borderRadius: 20,
-            background:
-              skill.status === "Completed"
-                ? "#DCFCE7"
-                : skill.status === "In Progress"
-                  ? C.accentL
-                  : "#F3F4F6",
-            color: statusCol(skill.status),
+            padding: "4px 11px",
+            borderRadius: 99,
+            background: ss.bg,
+            color: ss.color,
             fontWeight: 700,
-            marginLeft: 10,
+            marginLeft: 12,
             flexShrink: 0,
+            border: `1px solid ${ss.border}`,
           }}
         >
           {skill.status}
@@ -362,8 +465,8 @@ function SkillCard({ skill, onClick }) {
           style={{
             fontSize: 13,
             color: C.muted,
-            margin: "0 0 12px",
-            lineHeight: 1.5,
+            margin: "0 0 14px",
+            lineHeight: 1.55,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
@@ -379,7 +482,7 @@ function SkillCard({ skill, onClick }) {
           justifyContent: "space-between",
           fontSize: 12,
           color: C.muted,
-          marginBottom: 7,
+          marginBottom: 8,
         }}
       >
         <span>
@@ -387,20 +490,20 @@ function SkillCard({ skill, onClick }) {
           {skill.milestones.length} milestones
         </span>
         <span
-          style={{ fontWeight: 800, color: p === 100 ? C.success : C.accent }}
+          style={{ fontWeight: 800, color: p === 100 ? C.success : "#F5C842" }}
         >
           {p}%
         </span>
       </div>
-      <div style={{ height: 7, background: C.border, borderRadius: 99 }}>
+      <div style={{ height: 5, background: C.border, borderRadius: 99 }}>
         <div
           style={{
             height: "100%",
             width: `${p}%`,
             background: p === 100 ? C.success : C.gradBar,
             borderRadius: 99,
-            transition: "width 0.5s",
-            boxShadow: p > 0 ? "0 1px 6px rgba(184,118,11,0.35)" : "none",
+            transition: "width 0.6s ease",
+            boxShadow: p > 0 ? C.glowSm : "none",
           }}
         />
       </div>
@@ -408,6 +511,7 @@ function SkillCard({ skill, onClick }) {
   );
 }
 
+// ── Add Skill Modal ───────────────────────────────────────────────────────────
 function AddSkillModal({ onClose, onAdd, profile }) {
   const [form, setForm] = useState({
     title: "",
@@ -419,6 +523,7 @@ function AddSkillModal({ onClose, onAdd, profile }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [newM, setNewM] = useState("");
   const upd = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+  const canAI = form.title && form.category;
 
   const callAI = async (prompt) => {
     const res = await fetch("/api/ai", {
@@ -432,13 +537,12 @@ function AddSkillModal({ onClose, onAdd, profile }) {
 
   const generateRoadmap = async () => {
     setAiLoading(true);
-    const prompt = `You are an expert learning coach. Create a personalised learning roadmap for: "${form.title}"${form.category ? ` (${form.category})` : ""}.
-Profile: Age ${profile.age}, Location: ${profile.location}, Field: ${profile.field}, Experience: ${profile.experience}, Weekly hours: ${profile.weeklyHours}h/week.
-Goals: ${profile.goals || "General improvement"}.
-Tailor steps to their local context in ${profile.location}. Return ONLY a JSON array with 7-10 milestones: [{"title":"...","description":"..."}]. No markdown, no preamble.`;
+    const prompt = `You are an expert learning coach. Create a personalised roadmap for: "${form.title}" (${form.category}).
+Profile: Age ${profile.age}, ${profile.location}, ${profile.field}, ${profile.experience}, ${profile.weeklyHours}h/week. Goals: ${profile.goals || "general improvement"}.
+Tailor to ${profile.location}. Return ONLY a JSON array, 7-10 items: [{"title":"...","description":"..."}]. No markdown.`;
     try {
-      const result = await callAI(prompt);
-      const parsed = JSON.parse(result.replace(/```json|```/g, "").trim());
+      const r = await callAI(prompt);
+      const parsed = JSON.parse(r.replace(/```json|```/g, "").trim());
       setMilestones(
         parsed.map((m) => ({
           id: uid(),
@@ -450,12 +554,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
       setStep(2);
     } catch {
       setMilestones([
-        {
-          id: uid(),
-          title: "Getting started",
-          description: "Add your milestones below.",
-          done: false,
-        },
+        { id: uid(), title: "Getting started", description: "", done: false },
       ]);
       setStep(2);
     }
@@ -472,12 +571,25 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
     }
   };
 
+  const inputStyle = {
+    width: "100%",
+    padding: "11px 14px",
+    borderRadius: 11,
+    border: `1px solid ${C.border}`,
+    fontSize: 14,
+    color: C.text,
+    background: C.bg,
+    outline: "none",
+    boxSizing: "border-box",
+  };
+
   return (
     <div
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.5)",
+        background: "rgba(0,0,0,0.75)",
+        backdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -485,16 +597,16 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
         padding: 16,
       }}
     >
-      <div
+      <Card
+        glow
         style={{
           width: "100%",
           maxWidth: 520,
-          background: C.card,
-          borderRadius: 20,
           padding: 28,
           maxHeight: "88vh",
           overflowY: "auto",
-          boxShadow: "0 12px 50px rgba(0,0,0,0.2)",
+          boxShadow:
+            "0 24px 80px rgba(0,0,0,0.7), 0 0 40px rgba(201,146,10,0.1)",
         }}
       >
         <div
@@ -502,36 +614,53 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 22,
+            marginBottom: 24,
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 900 }}>
             {step === 1 ? (
               <GradText>Add New Skill</GradText>
             ) : (
-              <GradText>📋 Review Roadmap</GradText>
+              <GradText>Review Roadmap</GradText>
             )}
           </h2>
           <button
             onClick={onClose}
             style={{
-              background: "none",
-              border: "none",
-              fontSize: 22,
+              background: C.bg2,
+              border: `1px solid ${C.border}`,
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              fontSize: 18,
               cursor: "pointer",
               color: C.muted,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             ×
           </button>
         </div>
+
         {step === 1 && (
           <>
             {[
-              ["Skill Title *", "title", "input", "e.g. Learn Python"],
-              ["Category *", "category", "input", "e.g. Programming, Music"],
               [
-                "Goal / Description",
+                "Skill Title *",
+                "title",
+                "input",
+                "e.g. Learn Python, Master Guitar",
+              ],
+              [
+                "Category *",
+                "category",
+                "input",
+                "e.g. Programming, Music, Design",
+              ],
+              [
+                "Description",
                 "description",
                 "textarea",
                 "What do you want to achieve?",
@@ -541,10 +670,12 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                 <label
                   style={{
                     display: "block",
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: 700,
-                    color: C.accentD,
-                    marginBottom: 5,
+                    color: C.textDim,
+                    marginBottom: 6,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.8,
                   }}
                 >
                   {label}
@@ -555,91 +686,61 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     onChange={(e) => upd(key, e.target.value)}
                     placeholder={ph}
                     rows={2}
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      borderRadius: 10,
-                      border: `1.5px solid ${C.border}`,
-                      fontSize: 14,
-                      resize: "none",
-                      boxSizing: "border-box",
-                      fontFamily: "inherit",
-                    }}
+                    style={{ ...inputStyle, resize: "none" }}
                   />
                 ) : (
                   <input
                     value={form[key]}
                     onChange={(e) => upd(key, e.target.value)}
                     placeholder={ph}
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      borderRadius: 10,
-                      border: `1.5px solid ${C.border}`,
-                      fontSize: 14,
-                      boxSizing: "border-box",
-                    }}
+                    style={inputStyle}
                   />
                 )}
               </div>
             ))}
-            <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+            <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
               <button
                 onClick={generateRoadmap}
-                disabled={!form.title || !form.category || aiLoading}
+                disabled={!canAI || aiLoading}
                 style={{
                   flex: 1,
                   padding: "12px 0",
-                  background:
-                    form.title && form.category ? C.gradCard : "#F3F4F6",
-                  color: C.accentD,
-                  border: `1.5px solid ${form.title && form.category ? C.accent + "66" : C.border}`,
-                  borderRadius: 11,
+                  background: canAI ? C.accentL : C.bg2,
+                  color: canAI ? "#F5C842" : C.muted,
+                  border: `1px solid ${canAI ? C.borderGlow : C.border}`,
+                  borderRadius: 12,
                   fontWeight: 700,
                   fontSize: 13,
-                  cursor: form.title && form.category ? "pointer" : "default",
+                  cursor: canAI ? "pointer" : "default",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 8,
+                  boxShadow: canAI ? C.glowSm : "none",
                 }}
               >
                 {aiLoading ? (
                   <>
-                    <Spinner s={16} /> Generating...
+                    <Spinner s={15} /> Generating...
                   </>
                 ) : (
-                  "🤖 AI Generate Roadmap"
+                  "🤖 AI Generate"
                 )}
               </button>
-              <button
-                onClick={() => {
-                  if (form.title && form.category) setStep(2);
-                }}
-                disabled={!form.title || !form.category}
-                style={{
-                  padding: "12px 18px",
-                  background: form.title && form.category ? C.grad : C.border,
-                  color: "#fff",
-                  borderRadius: 11,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: form.title && form.category ? "pointer" : "default",
-                  border: "none",
-                  boxShadow:
-                    form.title && form.category
-                      ? "0 3px 12px rgba(184,118,11,0.35)"
-                      : "none",
-                }}
+              <GlowBtn
+                onClick={() => canAI && setStep(2)}
+                disabled={!canAI}
+                style={{ padding: "12px 20px" }}
               >
                 Manual →
-              </button>
+              </GlowBtn>
             </div>
           </>
         )}
+
         {step === 2 && (
           <>
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 16 }}>
               {milestones.map((m, i) => (
                 <div
                   key={m.id}
@@ -648,26 +749,27 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     gap: 10,
                     alignItems: "flex-start",
                     marginBottom: 8,
-                    padding: "10px 12px",
+                    padding: "11px 13px",
                     background: C.bg,
-                    borderRadius: 10,
+                    borderRadius: 11,
                     border: `1px solid ${C.border}`,
                   }}
                 >
                   <div
                     style={{
-                      width: 22,
-                      height: 22,
+                      width: 24,
+                      height: 24,
                       borderRadius: "50%",
                       background: C.grad,
-                      color: "#fff",
+                      color: "#0A0805",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 900,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                       marginTop: 1,
+                      boxShadow: C.glowSm,
                     }}
                   >
                     {i + 1}
@@ -684,7 +786,7 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                       }
                       style={{
                         width: "100%",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         fontSize: 13,
                         border: "none",
                         background: "transparent",
@@ -695,7 +797,12 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                     />
                     {m.description && (
                       <div
-                        style={{ fontSize: 12, color: C.muted, marginTop: 2 }}
+                        style={{
+                          fontSize: 12,
+                          color: C.muted,
+                          marginTop: 3,
+                          lineHeight: 1.4,
+                        }}
                       >
                         {m.description}
                       </div>
@@ -710,96 +817,63 @@ Tailor steps to their local context in ${profile.location}. Return ONLY a JSON a
                       border: "none",
                       color: C.muted,
                       cursor: "pointer",
-                      fontSize: 16,
+                      fontSize: 18,
                       padding: 0,
+                      lineHeight: 1,
                     }}
                   >
                     ×
                   </button>
                 </div>
               ))}
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                 <input
                   value={newM}
                   onChange={(e) => setNewM(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addM()}
                   placeholder="Add a milestone..."
-                  style={{
-                    flex: 1,
-                    padding: "9px 12px",
-                    borderRadius: 10,
-                    border: `1.5px dashed ${C.border}`,
-                    fontSize: 13,
-                    background: C.bg,
-                    boxSizing: "border-box",
-                  }}
+                  style={{ ...inputStyle, borderStyle: "dashed" }}
                 />
-                <button
+                <GlowBtn
                   onClick={addM}
-                  style={{
-                    padding: "9px 14px",
-                    background: C.grad,
-                    border: "none",
-                    borderRadius: 10,
-                    color: "#fff",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
+                  style={{ padding: "11px 16px", flexShrink: 0 }}
                 >
                   +
-                </button>
+                </GlowBtn>
               </div>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button
+              <GlowBtn
+                variant="outline"
                 onClick={() => setStep(1)}
-                style={{
-                  padding: "11px 16px",
-                  background: C.bg,
-                  border: `1.5px solid ${C.border}`,
-                  borderRadius: 11,
-                  fontWeight: 600,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  color: C.muted,
-                }}
+                style={{ padding: "12px 16px" }}
               >
                 ← Back
-              </button>
-              <button
-                onClick={() => {
-                  if (form.title)
-                    onAdd({
-                      id: uid(),
-                      ...form,
-                      status: "Not Started",
-                      milestones,
-                      createdAt: new Date().toISOString(),
-                    });
-                }}
-                style={{
-                  flex: 1,
-                  padding: "11px 0",
-                  background: C.grad,
-                  color: "#fff",
-                  borderRadius: 11,
-                  fontWeight: 800,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  border: "none",
-                  boxShadow: "0 4px 16px rgba(184,118,11,0.4)",
-                }}
+              </GlowBtn>
+              <GlowBtn
+                onClick={() =>
+                  form.title &&
+                  onAdd({
+                    id: uid(),
+                    ...form,
+                    status: "Not Started",
+                    milestones,
+                    createdAt: new Date().toISOString(),
+                  })
+                }
+                style={{ flex: 1, padding: "12px 0", fontSize: 14 }}
               >
                 Save Skill ✓
-              </button>
+              </GlowBtn>
             </div>
           </>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
 
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard({
   profile,
   skills,
@@ -817,42 +891,58 @@ function Dashboard({
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
-      {/* Header */}
+      {/* Background ambient glow */}
       <div
         style={{
-          background: C.gradDeep,
-          padding: "14px 24px",
+          position: "fixed",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 800,
+          height: 300,
+          background:
+            "radial-gradient(ellipse, rgba(201,146,10,0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Navbar */}
+      <div
+        style={{
+          background: "rgba(10,8,5,0.85)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "13px 24px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           position: "sticky",
           top: 0,
           zIndex: 10,
-          boxShadow: "0 2px 20px rgba(0,0,0,0.25)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
           <div
             style={{
               width: 38,
               height: 38,
-              background: "rgba(255,255,255,0.15)",
-              borderRadius: 10,
+              background: C.grad,
+              borderRadius: 11,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 20,
-              backdropFilter: "blur(4px)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              fontSize: 19,
+              boxShadow: C.glowSm,
             }}
           >
             🗺️
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#FFF8E7" }}>
+            <div style={{ fontSize: 14, fontWeight: 900, color: C.text }}>
               Skill Roadmap
             </div>
-            <div style={{ fontSize: 12, color: "#E6C97A", marginTop: 1 }}>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
               Hey {profile.name} 👋
             </div>
           </div>
@@ -860,137 +950,114 @@ function Dashboard({
         <button
           onClick={onEditProfile}
           style={{
-            background: "rgba(255,255,255,0.12)",
-            border: "1.5px solid rgba(255,255,255,0.2)",
-            borderRadius: 8,
-            padding: "7px 14px",
+            background: C.accentL,
+            border: `1px solid ${C.borderGlow}`,
+            borderRadius: 9,
+            padding: "7px 15px",
             fontSize: 12,
-            color: "#FFF8E7",
+            color: "#F5C842",
             cursor: "pointer",
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           ✏️ Edit Profile
         </button>
       </div>
 
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "28px 20px" }}>
+      <div
+        style={{
+          maxWidth: 800,
+          margin: "0 auto",
+          padding: "28px 20px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         {/* Stats */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: 12,
-            marginBottom: 22,
+            marginBottom: 20,
           }}
         >
           {[
-            ["Total Skills", skills.length, "📚"],
+            ["📚", "Total", skills.length],
             [
-              "In Progress",
-              skills.filter((s) => s.status === "In Progress").length,
               "🔥",
+              "Active",
+              skills.filter((s) => s.status === "In Progress").length,
             ],
             [
-              "Completed",
-              skills.filter((s) => s.status === "Completed").length,
               "✅",
+              "Done",
+              skills.filter((s) => s.status === "Completed").length,
             ],
-            ["Avg Progress", `${overall}%`, "📈"],
-          ].map(([label, val, icon]) => (
-            <div
+            ["📈", "Avg", `${overall}%`],
+          ].map(([icon, label, val]) => (
+            <Card
               key={label}
-              style={{
-                background: C.card,
-                border: `1.5px solid ${C.border}`,
-                borderRadius: 14,
-                padding: "14px 16px",
-                boxShadow: "0 2px 10px rgba(184,118,11,0.07)",
-              }}
+              style={{ padding: "16px 18px", textAlign: "center" }}
             >
-              <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
-              <div
-                style={{
-                  fontSize: 20,
-                  fontWeight: 900,
-                  background: C.gradText,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {val}
+              <div style={{ fontSize: 20, marginBottom: 6 }}>{icon}</div>
+              <div style={{ fontSize: 22, fontWeight: 900 }}>
+                <GradText>{val}</GradText>
               </div>
               <div
                 style={{
                   fontSize: 11,
                   color: C.muted,
                   fontWeight: 600,
-                  marginTop: 2,
+                  marginTop: 3,
                 }}
               >
                 {label}
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Overall progress */}
         {skills.length > 0 && (
-          <div
-            style={{
-              background: C.gradCard,
-              borderRadius: 14,
-              padding: "16px 20px",
-              marginBottom: 22,
-              border: `1.5px solid ${C.accent}44`,
-              boxShadow: "0 3px 16px rgba(184,118,11,0.12)",
-            }}
-          >
+          <Card glow style={{ padding: "18px 22px", marginBottom: 20 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginBottom: 8,
-                fontSize: 13,
-                fontWeight: 800,
-                color: C.accentD,
+                alignItems: "center",
+                marginBottom: 10,
               }}
             >
-              <span>Overall Progress</span>
-              <span
-                style={{
-                  background: C.gradText,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {overall}%
+              <span style={{ fontSize: 13, fontWeight: 700, color: C.textDim }}>
+                Overall Progress
               </span>
+              <GradText style={{ fontSize: 15, fontWeight: 900 }}>
+                {overall}%
+              </GradText>
             </div>
-            <div
-              style={{ height: 10, background: "#E8D9A0", borderRadius: 99 }}
-            >
+            <div style={{ height: 8, background: C.border, borderRadius: 99 }}>
               <div
                 style={{
                   height: "100%",
                   width: `${overall}%`,
                   background: C.gradBar,
                   borderRadius: 99,
-                  transition: "width 0.6s",
-                  boxShadow: "0 1px 8px rgba(184,118,11,0.4)",
+                  transition: "width 0.7s ease",
+                  boxShadow: overall > 0 ? C.glow : "none",
                 }}
               />
             </div>
-          </div>
+          </Card>
         )}
 
-        {/* Filter + Add */}
+        {/* Filters + Add */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 16,
+            marginBottom: 18,
             flexWrap: "wrap",
             gap: 10,
           }}
@@ -1001,47 +1068,37 @@ function Dashboard({
                 key={s}
                 onClick={() => setFilter(s)}
                 style={{
-                  padding: "6px 13px",
-                  borderRadius: 20,
-                  border: `1.5px solid ${filter === s ? C.accent : C.border}`,
-                  background: filter === s ? C.gradCard : C.card,
-                  color: filter === s ? C.accentD : C.muted,
+                  padding: "6px 14px",
+                  borderRadius: 99,
+                  border: `1px solid ${filter === s ? C.accent : C.border}`,
+                  background: filter === s ? C.accentL : "transparent",
+                  color: filter === s ? "#F5C842" : C.muted,
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow:
-                    filter === s ? "0 2px 8px rgba(184,118,11,0.2)" : "none",
+                  transition: "all 0.15s",
+                  boxShadow: filter === s ? C.glowSm : "none",
                 }}
               >
                 {s}
               </button>
             ))}
           </div>
-          <button
+          <GlowBtn
             onClick={() => setShowAdd(true)}
-            style={{
-              background: C.grad,
-              color: "#fff",
-              border: "none",
-              borderRadius: 11,
-              padding: "9px 20px",
-              fontWeight: 800,
-              fontSize: 13,
-              cursor: "pointer",
-              boxShadow: "0 4px 16px rgba(184,118,11,0.4)",
-            }}
+            style={{ padding: "9px 20px" }}
           >
             + Add Skill
-          </button>
+          </GlowBtn>
         </div>
 
         {filtered.length === 0 ? (
-          <div
-            style={{ textAlign: "center", padding: "70px 0", color: C.muted }}
-          >
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🌱</div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>No skills yet</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ fontSize: 52, marginBottom: 14 }}>🌱</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>
+              No skills yet
+            </div>
+            <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>
               Click "+ Add Skill" to begin your roadmap
             </div>
           </div>
@@ -1068,11 +1125,12 @@ function Dashboard({
           profile={profile}
         />
       )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
+// ── Skill Detail ──────────────────────────────────────────────────────────────
 function SkillDetail({ skill, profile, onBack, onUpdate, onDelete }) {
   const [activeAI, setActiveAI] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -1093,24 +1151,23 @@ function SkillDetail({ skill, profile, onBack, onUpdate, onDelete }) {
       const data = await res.json();
       setAiText(data.text || data.error || "No response. Please try again.");
     } catch {
-      setAiText("Could not reach AI. Check your connection and try again.");
+      setAiText("Could not reach AI. Check your connection.");
     }
     setAiLoading(false);
   };
 
-  const ctx = `User: ${profile.name}, Age ${profile.age}, Location: ${profile.location}, Field: ${profile.field}, Experience: ${profile.experience}, ${profile.weeklyHours}h/week. Goals: ${profile.goals || "general improvement"}.
-Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skill.milestones.map((m) => `${m.done ? "✓" : "○"} ${m.title}`).join(" | ")}.`;
+  const ctx = `User: ${profile.name}, Age ${profile.age}, ${profile.location}, ${profile.field}, ${profile.experience}, ${profile.weeklyHours}h/week. Goals: ${profile.goals || "general improvement"}. Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skill.milestones.map((m) => `${m.done ? "✓" : "○"} ${m.title}`).join(" | ")}.`;
 
-  const prompts = {
-    suggestions: `You are an expert learning coach with knowledge of African tech ecosystems. ${ctx}\nAnalyse the roadmap and suggest 4-5 specific improvements or resources. Tailor advice to ${profile.location} — mention locally accessible platforms, free tools, and practical workarounds. Be direct and actionable.`,
-    planner: `You are an expert learning planner. ${ctx}\nCreate a personalised 4-week study plan given ${profile.weeklyHours}h/week. Format clearly as Week 1, Week 2, etc. Be specific and realistic for someone in ${profile.location}.`,
-    insight: `You are a career analyst with knowledge of Nigerian, African, and global economies. ${ctx}\nProvide peer benchmarking: Where does a ${profile.age}-year-old in ${profile.location} with ${profile.experience} experience in ${profile.field} stand — locally in Nigeria, across Africa, and globally — if they master "${skill.title}"? Include percentile context, local salary range, global positioning, and what doors this opens. Be honest and motivating.`,
-    tips: `You are an elite learning strategist coaching African professionals to global competitiveness. ${ctx}\nGive 3 unconventional high-leverage tips for learning "${skill.title}" that most people in ${profile.location} overlook. Focus on free/affordable resources in Nigeria and what separates the top 10% of learners.`,
+  const aiPrompts = {
+    suggestions: `Expert learning coach. ${ctx}\nSuggest 4-5 specific improvements/resources. Tailor to ${profile.location} — mention locally accessible platforms and free tools.`,
+    planner: `Expert learning planner. ${ctx}\nCreate a 4-week plan for ${profile.weeklyHours}h/week. Format: Week 1, Week 2, etc. Specific and realistic for ${profile.location}.`,
+    insight: `Career analyst. ${ctx}\nPeer benchmarking: where does a ${profile.age}-year-old in ${profile.location} with ${profile.experience} in ${profile.field} stand locally, in Africa, and globally if they master "${skill.title}"? Include percentiles, salary range, doors opened. Be honest and motivating.`,
+    tips: `Elite learning strategist for African professionals. ${ctx}\n3 unconventional high-leverage tips for "${skill.title}" most people in ${profile.location} overlook. Focus on free resources and top 10% habits.`,
   };
 
   const runAI = (type) => {
     setActiveAI(type);
-    callAI(prompts[type]);
+    callAI(aiPrompts[type]);
   };
 
   const toggleM = (id) => {
@@ -1145,39 +1202,55 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
   };
 
   const aiButtons = [
-    ["suggestions", "💡 Smart Suggestions"],
-    ["planner", "📅 Weekly Planner"],
+    ["suggestions", "💡 Suggestions"],
+    ["planner", "📅 Planner"],
     ["insight", "🌍 World Standing"],
     ["tips", "⚡ Pro Tips"],
   ];
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 800,
+          height: 300,
+          background:
+            "radial-gradient(ellipse, rgba(201,146,10,0.05) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
       {/* Header */}
       <div
         style={{
-          background: C.gradDeep,
-          padding: "14px 20px",
+          background: "rgba(10,8,5,0.85)",
+          backdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${C.border}`,
+          padding: "13px 20px",
           display: "flex",
           alignItems: "center",
           gap: 12,
           position: "sticky",
           top: 0,
           zIndex: 10,
-          boxShadow: "0 2px 20px rgba(0,0,0,0.25)",
         }}
       >
         <button
           onClick={onBack}
           style={{
-            background: "rgba(255,255,255,0.12)",
-            border: "1.5px solid rgba(255,255,255,0.2)",
-            borderRadius: 8,
-            padding: "7px 13px",
+            background: C.accentL,
+            border: `1px solid ${C.borderGlow}`,
+            borderRadius: 9,
+            padding: "7px 14px",
             fontSize: 12,
-            color: "#FFF8E7",
+            color: "#F5C842",
             cursor: "pointer",
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           ← Back
@@ -1186,10 +1259,12 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
           <div
             style={{
               fontSize: 10,
-              fontWeight: 700,
-              color: "#E6C97A",
+              fontWeight: 800,
+              background: C.gradText,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
               textTransform: "uppercase",
-              letterSpacing: 1.2,
+              letterSpacing: 1.5,
             }}
           >
             {skill.category}
@@ -1197,8 +1272,8 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
           <div
             style={{
               fontSize: 16,
-              fontWeight: 800,
-              color: "#FFF8E7",
+              fontWeight: 900,
+              color: C.text,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -1212,119 +1287,109 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             if (window.confirm(`Delete "${skill.title}"?`)) onDelete(skill.id);
           }}
           style={{
-            background: "rgba(255,80,80,0.15)",
-            border: "1.5px solid rgba(255,80,80,0.3)",
-            borderRadius: 8,
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            borderRadius: 9,
             padding: "7px 12px",
             fontSize: 12,
-            color: "#ffaaaa",
+            color: "#F87171",
             cursor: "pointer",
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           🗑 Delete
         </button>
       </div>
 
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "24px 20px" }}>
-        {/* Progress */}
-        <div
-          style={{
-            background: C.card,
-            border: `1.5px solid ${C.border}`,
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 16,
-            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
-          }}
-        >
+      <div
+        style={{
+          maxWidth: 680,
+          margin: "0 auto",
+          padding: "24px 20px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        {/* Progress card */}
+        <Card glow style={{ padding: "22px 24px", marginBottom: 14 }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 12,
+              marginBottom: 14,
             }}
           >
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: C.text,
+                  marginBottom: 4,
+                }}
+              >
                 Progress
               </div>
-              <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: C.muted }}>
                 {skill.milestones.filter((m) => m.done).length} of{" "}
                 {skill.milestones.length} milestones ·{" "}
                 <span
-                  style={{ color: statusCol(skill.status), fontWeight: 700 }}
+                  style={{
+                    color:
+                      skill.status === "Completed"
+                        ? C.success
+                        : skill.status === "In Progress"
+                          ? "#F5C842"
+                          : C.muted,
+                    fontWeight: 700,
+                  }}
                 >
                   {skill.status}
                 </span>
               </div>
             </div>
-            <div
-              style={{
-                fontSize: 30,
-                fontWeight: 900,
-                background: p === 100 ? "none" : C.gradText,
-                WebkitBackgroundClip: p === 100 ? "none" : "text",
-                WebkitTextFillColor: p === 100 ? C.success : "transparent",
-              }}
-            >
-              {p}%
+            <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1 }}>
+              <GradText>{p}%</GradText>
             </div>
           </div>
-          <div style={{ height: 12, background: C.border, borderRadius: 99 }}>
+          <div style={{ height: 10, background: C.border, borderRadius: 99 }}>
             <div
               style={{
                 height: "100%",
                 width: `${p}%`,
                 background: p === 100 ? C.success : C.gradBar,
                 borderRadius: 99,
-                transition: "width 0.5s",
-                boxShadow: p > 0 ? "0 2px 8px rgba(184,118,11,0.4)" : "none",
+                transition: "width 0.6s ease",
+                boxShadow: p > 0 ? C.glow : "none",
               }}
             />
           </div>
-        </div>
+        </Card>
 
         {/* Milestones */}
-        <div
-          style={{
-            background: C.card,
-            border: `1.5px solid ${C.border}`,
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 16,
-            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
-          }}
-        >
+        <Card style={{ padding: "22px 24px", marginBottom: 14 }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 18,
             }}
           >
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 14,
-                fontWeight: 800,
-                color: C.text,
-              }}
-            >
+            <h3 style={{ fontSize: 14, fontWeight: 800, color: C.text }}>
               Milestones
             </h3>
             <button
               onClick={() => setShowNewM(!showNewM)}
               style={{
-                background: C.gradCard,
-                border: `1px solid ${C.accent}55`,
+                background: C.accentL,
+                border: `1px solid ${C.borderGlow}`,
                 borderRadius: 8,
-                padding: "6px 13px",
+                padding: "6px 14px",
                 fontSize: 12,
                 fontWeight: 700,
-                color: C.accentD,
+                color: "#F5C842",
                 cursor: "pointer",
               }}
             >
@@ -1332,7 +1397,7 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             </button>
           </div>
           {showNewM && (
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               <input
                 value={newM}
                 onChange={(e) => setNewM(e.target.value)}
@@ -1341,39 +1406,35 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 placeholder="Milestone title..."
                 style={{
                   flex: 1,
-                  padding: "9px 12px",
+                  padding: "10px 13px",
                   borderRadius: 10,
-                  border: `1.5px solid ${C.accent}`,
+                  border: `1px solid ${C.accent}`,
                   fontSize: 13,
+                  background: C.bg,
+                  color: C.text,
+                  outline: "none",
                   boxSizing: "border-box",
                 }}
               />
-              <button
+              <GlowBtn
                 onClick={addM}
-                style={{
-                  padding: "9px 14px",
-                  background: C.grad,
-                  border: "none",
-                  borderRadius: 10,
-                  color: "#fff",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+                style={{ padding: "10px 16px", flexShrink: 0 }}
               >
                 Add
-              </button>
+              </GlowBtn>
               <button
                 onClick={() => {
                   setShowNewM(false);
                   setNewM("");
                 }}
                 style={{
-                  padding: "9px 12px",
-                  background: C.bg,
+                  padding: "10px 13px",
+                  background: C.bg2,
                   border: `1px solid ${C.border}`,
                   borderRadius: 10,
                   cursor: "pointer",
                   color: C.muted,
+                  fontWeight: 700,
                 }}
               >
                 ✕
@@ -1386,10 +1447,10 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 textAlign: "center",
                 color: C.muted,
                 fontSize: 13,
-                padding: "20px 0",
+                padding: "24px 0",
               }}
             >
-              No milestones yet.
+              No milestones yet. Add some above or use AI to generate a roadmap.
             </div>
           )}
           {skill.milestones.map((m, i) => (
@@ -1398,9 +1459,9 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
               onClick={() => toggleM(m.id)}
               style={{
                 display: "flex",
-                gap: 12,
+                gap: 13,
                 alignItems: "flex-start",
-                padding: "11px 0",
+                padding: "12px 0",
                 borderBottom:
                   i < skill.milestones.length - 1
                     ? `1px solid ${C.border}`
@@ -1410,8 +1471,8 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
             >
               <div
                 style={{
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   borderRadius: "50%",
                   border: `2px solid ${m.done ? C.success : C.border}`,
                   background: m.done ? C.success : "transparent",
@@ -1421,17 +1482,18 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                   flexShrink: 0,
                   marginTop: 1,
                   transition: "all 0.2s",
+                  boxShadow: m.done ? "0 0 10px rgba(34,197,94,0.4)" : "none",
                 }}
               >
                 {m.done && (
                   <span
-                    style={{ color: "#fff", fontSize: 11, fontWeight: 800 }}
+                    style={{ color: "#0A0805", fontSize: 11, fontWeight: 900 }}
                   >
                     ✓
                   </span>
                 )}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
                     fontSize: 14,
@@ -1444,7 +1506,14 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                   {m.title}
                 </div>
                 {m.description && (
-                  <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: C.muted,
+                      marginTop: 3,
+                      lineHeight: 1.5,
+                    }}
+                  >
                     {m.description}
                   </div>
                 )}
@@ -1462,70 +1531,72 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
               </div>
             </div>
           ))}
-        </div>
+        </Card>
 
         {/* AI Panel */}
-        <div
-          style={{
-            background: C.card,
-            border: `1.5px solid ${C.border}`,
-            borderRadius: 16,
-            padding: 20,
-            boxShadow: "0 2px 12px rgba(184,118,11,0.08)",
-          }}
-        >
+        <Card glow style={{ padding: "22px 24px" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
-              marginBottom: 14,
+              gap: 12,
+              marginBottom: 18,
             }}
           >
             <div
               style={{
-                width: 34,
-                height: 34,
+                width: 38,
+                height: 38,
                 background: C.grad,
-                borderRadius: 10,
+                borderRadius: 11,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 16,
-                boxShadow: "0 3px 12px rgba(184,118,11,0.35)",
+                fontSize: 18,
+                boxShadow: C.glow,
+                flexShrink: 0,
               }}
             >
               🤖
             </div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>
-                AI Assistant{" "}
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: C.text,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                AI Assistant
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
+                    fontWeight: 800,
                     color: C.success,
-                    fontWeight: 700,
-                    marginLeft: 4,
-                    background: "#DCFCE7",
-                    padding: "2px 7px",
+                    background: C.successBg,
+                    border: `1px solid #052010`,
+                    padding: "2px 8px",
                     borderRadius: 99,
                   }}
                 >
-                  ✦ Free
+                  ✦ FREE
                 </span>
               </div>
-              <div style={{ fontSize: 11, color: C.muted }}>
-                Personalised to {profile.name}, {profile.age},{" "}
-                {profile.location}
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                Personalised · {profile.name}, {profile.age}, {profile.location}
               </div>
             </div>
           </div>
+
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 8,
-              marginBottom: 16,
+              marginBottom: 18,
             }}
           >
             {aiButtons.map(([key, label]) => (
@@ -1534,64 +1605,63 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
                 onClick={() => runAI(key)}
                 disabled={aiLoading}
                 style={{
-                  padding: "10px 12px",
-                  borderRadius: 10,
-                  border: `1.5px solid ${activeAI === key ? C.accent : C.border}`,
-                  background: activeAI === key ? C.gradCard : C.bg,
-                  color: activeAI === key ? C.accentD : C.muted,
-                  fontSize: 12,
+                  padding: "11px 14px",
+                  borderRadius: 11,
+                  border: `1px solid ${activeAI === key ? C.accent : C.border}`,
+                  background: activeAI === key ? C.accentL : C.bg2,
+                  color: activeAI === key ? "#F5C842" : C.textDim,
+                  fontSize: 13,
                   fontWeight: 700,
                   cursor: aiLoading ? "default" : "pointer",
                   textAlign: "left",
                   transition: "all 0.15s",
-                  boxShadow:
-                    activeAI === key
-                      ? "0 2px 10px rgba(184,118,11,0.2)"
-                      : "none",
+                  boxShadow: activeAI === key ? C.glowSm : "none",
                 }}
               >
                 {label}
               </button>
             ))}
           </div>
+
           {aiLoading && (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                padding: "16px 14px",
-                background: C.gradCard,
+                gap: 12,
+                padding: "18px 16px",
+                background: C.accentL,
                 borderRadius: 12,
-                color: C.accentD,
-                fontSize: 13,
-                fontWeight: 600,
-                border: `1px solid ${C.accent}33`,
+                border: `1px solid ${C.borderGlow}`,
               }}
             >
-              <Spinner s={18} /> Generating personalised insights...
+              <Spinner s={18} />
+              <span style={{ color: "#F5C842", fontSize: 13, fontWeight: 700 }}>
+                Generating personalised insights...
+              </span>
             </div>
           )}
+
           {!aiLoading && aiText && (
             <div
               style={{
-                background: C.gradCard,
-                borderRadius: 12,
-                padding: "16px 18px",
-                border: `1px solid ${C.accent}44`,
-                boxShadow: "0 2px 12px rgba(184,118,11,0.1)",
+                background: C.accentL,
+                borderRadius: 13,
+                padding: "18px 20px",
+                border: `1px solid ${C.borderGlow}`,
+                boxShadow: C.glowSm,
               }}
             >
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
+                  fontSize: 10,
+                  fontWeight: 900,
                   background: C.gradText,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  marginBottom: 10,
+                  marginBottom: 12,
                   textTransform: "uppercase",
-                  letterSpacing: 1,
+                  letterSpacing: 1.5,
                 }}
               >
                 {aiButtons.find(([k]) => k === activeAI)?.[1]}
@@ -1599,8 +1669,8 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
               <div
                 style={{
                   fontSize: 13,
-                  color: C.text,
-                  lineHeight: 1.8,
+                  color: C.textDim,
+                  lineHeight: 1.85,
                   whiteSpace: "pre-wrap",
                 }}
               >
@@ -1608,25 +1678,27 @@ Skill: "${skill.title}" (${skill.category}). Progress: ${p}%. Milestones: ${skil
               </div>
             </div>
           )}
+
           {!aiLoading && !aiText && (
             <div
               style={{
                 fontSize: 13,
                 color: C.muted,
                 textAlign: "center",
-                padding: "10px 0",
+                padding: "8px 0",
               }}
             >
               Select an option above for AI insights tailored to you.
             </div>
           )}
-        </div>
+        </Card>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
+// ── Root ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [profile, setProfile] = useState(() => {
     try {
@@ -1665,7 +1737,6 @@ export default function App() {
 
   if (view === "profile")
     return <ProfileSetup onSave={saveProfile} existing={profile} />;
-
   const sel = skills.find((s) => s.id === selectedId);
   if (view === "skill" && sel)
     return (
@@ -1682,7 +1753,6 @@ export default function App() {
         }}
       />
     );
-
   return (
     <Dashboard
       profile={profile}
